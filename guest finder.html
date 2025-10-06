@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Guest Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet">
+</head>
+<body class="bg-base-200 min-h-screen p-4">
+    <div class="max-w-md mx-auto">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="text-4xl mb-2">🎫</div>
+                    <h1 class="text-2xl font-bold">Guest Finder</h1>
+                </div>
+                
+                <input type="text" id="search" placeholder="Search by name, company, or AM..." 
+                       class="input input-bordered input-primary w-full" autocomplete="off">
+                
+                <div id="results" class="mt-4 space-y-2 max-h-96 overflow-y-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+const guestData = `Table number	Title	Full Name	Company	AM
+1	Partner	Abdelilah Nejjari	Cisco	Partner
+1	Partner	Walid Yehia	Dell	Partner
+1	Mr.	Ismail Al Hammadi	Ex - Etisalat	Mohd Abouzaki
+1	Partner	Shadi Khoffash	Fortniet	Partner
+1	Mr.	Alwyn Dinesh Jhon Crasta	IHC	Mohd Abouzaki
+1	Mr.	Fawad Fayez	IHC	Mohd Abouzaki
+1	Mr.	Ayman Hamed	International Securities	Mohd Abouzaki
+1	emircom	 Reserved Mohd Abouzaki		emircom
+2	Partner	Zayan Sadek	Cisco	Partner
+2	Mr.	Obaid Bokisha	e&	Shadi Basta / Abouzaki
+2	Mr.	Saeed AlZarooni	e&	Shadi Basta / Abouzaki
+2	Mr.	Syed Basar Shueb	IHC	Mohd Abouzaki
+2	Partner	Abed Benaichouche	Open Innovation	Partner
+2	Mr.	Robin Sharma	Robin Sharma Inc.	Mohd Abouzaki
+2	Dr.	M Al Kuwaiti	UAE Cyber Security Council	Mohd Abouzaki
+2	emircom	 Reserved Mohd Abouzaki		emircom
+3	Mr.	Bulund Iqbal	E&Y	Mohd Abouzaki
+3	Mr.	Abdullah Al Rashdi	IHC	Mohd Abouzaki
+3	Mr.	Ali Rashid AlRashdi	IHC	Mohd Abouzaki
+3	Mr.	Peter Abram	IHC	Mohd Abouzaki
+3	Mr.	Arif Khan	Infinia	Mohd Abouzaki
+3	Mr.	Mohamad Basafi	Mobile - KSA	Mohd Abouzaki
+3	emircom	 Reserved Mohd Abouzaki		emircom
+3				
+4	Partner	Fady Younes	Cisco	Mohd Abouzaki
+4	Partner	Zayan Sadek	Cisco	Mohd Abouzaki
+4	Mr.	Abu Baqer AlMarzooqi	e&	Shadi Basta
+4	Mr.	Ahmed AlShamsi	e&	Shadi Basta / Abouzaki
+4	Dr.	Ali Abdalla Saeed Khalfan AlNaqbi	e&	Kabel / Shadi
+4	Mr.	Bakheet Ghanem AlAmeri	e&	Mohd Abouzaki
+4	Mr.	Haitham Abdul Razzak	e&	Mohd Abouzaki
+4	Mr.	Khaled AlSuwaidi	e&	Shadi Basta
+4	Mr.	Mohameh Mohamed	e&	Shadi Basta
+4	emircom	Shadi Basta	Emircom	emircom
+5	Mr.	Kamran Ahmed	Abu Dhabi Stem Cells Center(ADSCC)	Shadi Basta
+5	Mr.	Eric Leandri	Aleria	Mohd Abouzaki
+5	Mr.	Osama Malki	Apeiro	Mohd Abouzaki
+5	Mr.	Ahmed Fares M. AbouEissa	DED	Shadi Basta
+5	Dr.	Reem Lebhar	Mena Tech AI	Frelix
+5	Ms.	Amal Abdulrahim Mohamed	Ministry of Climate Change & Environment	Shuhaib Wani
+5	Mr.	Najib Sarieddine	private -  maz	Mohd Abouzaki
+5	Partner	Manuel Rodrigues	Schneider Electric	Partner
+5	Mr.	Wael Abdulmalak	wusoom	Mohd Abouzaki
+5				
+6	Mr.	Adel Ghaled AbduHadad	Abu Dhabi Police	Tamouh Mokayed
+6	Mr.	Ahmad AlQassimi	Abu Dhabi Police	Tamouh Mokayed
+6	Captain	Bader AlNaqeeb	Abu Dhabi Police	Tamouh Mokayed
+6	Mr.	Hamad AlNuaimi	Abu Dhabi Police	Tamouh Mokayed
+6	Lt. Col. 	Saeed Chamsi	Abu Dhabi Police	Tamouh Mokayed
+6	TBD	M Al Kuwaiti +1	UAE Cyber Security Council	Mohd Abouzaki
+6	TBD	M Al Kuwaiti +2	UAE Cyber Security Council	Mohd Abouzaki
+6	TBD	M Al Kuwaiti +3	UAE Cyber Security Council	Mohd Abouzaki
+6	TBD	M Al Kuwaiti +4	UAE Cyber Security Council	Mohd Abouzaki
+6	emircom	Tamouh M		emircom
+7	emircom	Fadi Adra	Emircom	emircom
+7	Mr.	Falah Ali Hasan Alshehhi	MOFA	Fadi Adra
+7	Mr.	Hamid Mohamed Elhadi Hamid	MOFA	Fadi Adra
+7	Mr.	Zainulhabideen Padath	MOFA	Fadi Adra
+7	Ms.	Rinad Nazzal	MOH	Fadi Adra
+7	Mr.	Abdelmajid Abubakr	MOJ	Fadi Adra
+7	Mr.	Khaleel Houtari	MOJ	Fadi Adra
+7	Mr.	Mohamad AlSaid	MOJ	Fadi Adra
+7	Ms.	Moza Alhemeiri	MOJ	Fadi Adra
+7	Mr.	Nader Serry Yousef	MOJ	Fadi Adra
+7	Mr.	Taha Al-Munzir Awad	MOJ	Fadi Adra
+8	Mr.	Faisal AlDhaheri	ADJD	Fadi Adra
+8	Mr.	Manhal AbdulQader	ADJD	Fadi Adra
+8	Mr.	Mohamed Ibrahim	ADJD	Fadi Adra
+8	Mr.	Mohamed Talha	ADJD	Fadi Adra
+8	Mr.	Anish Nair	ADX	Fadi Adra
+8	Mr.	Mamoun Ibrahim Abu Zaytoun	ADX	Fadi Adra
+8	Mr.	Sreenath Vilakathala	ADX	Fadi Adra
+8	Mr.	Sunil Sharafudeen	ADX	Fadi Adra
+8	Partner	Fadia Abi-Ayad	F5	Partner
+8	Partner	Remzi Hejazi	F5	Partner
+9	Mr.	Abdulaziz Alhebsi	ADNOC	Fadi Adra
+9	Mr.	Abdulla AlJaberi	ADNOC	Fadi Adra
+9	Mr.	Amir Elderbi	ADNOC	Fadi Adra
+9	Mr.	EBRAHIM ALMESSABI	ADNOC	Fadi Adra
+9	Mr.	Mahmoud Safwan Nijam	ADNOC	Salim Awwad
+9	Mr.	Mohamed AlHammadi	ADNOC	Fadi Adra
+9	Mr.	Anand Dhayalan	ADOC	Salim Awwad
+9	Partner	Checkpoint TBD	Checkpoint	Partner
+9	Mr.	Rafat Ghonmieen	ENEC	Salim Awwad
+9	Mr.	Zubair Mohammed	FERTIGLOBE	Salim Awwad
+10	Mr.	Abdelsalam Ali	MOFAIC	Fadi Adra
+10	Mr.	Ahmed Salem Almarzooqi	MOFAIC	Fadi Adra
+10	Mr.	Ashraf Mohammed Al Anati	MOFAIC	Fadi Adra
+10	Mr.	Jasem Alhefeiti	MOFAIC	Fadi Adra
+10	Mr.	Kamal Nofal	MOFAIC	Fadi Adra
+10	Mr.	Khaled Alshehhi	MOFAIC	Fadi Adra
+10	Mr.	Mohammed Abass	MOFAIC	Fadi Adra
+10	Mr.	Mohammed Juma AlRomithi	MOFAIC	Fadi Adra
+10	Mr.	Sultan alketbi	MOFAIC	Fadi Adra
+10				
+11	Partner	Hadi Mitri	Cisco	Partner
+11	Partner	Tarek SAIED	Cisco	Partner
+11	Mr.	Alessandro Cinturino	e&	Shadi Basta
+11	Mr.	Amr Khalifa	e&	michele Halabi
+11	Mr.	Ayman A AlShehi	e&	michele Halabi
+11	Mr.	Bahaaeldin Hassan Mahmoud Abdelfattah Moustafa	e&	michele Halabi
+11	Mr.	Kamel Chatila	e&	michele Halabi
+11		Khalid A AlKhaja	e&	Kabel / Shadi
+11	Mr.	Yousef AlAskar	e&	Kabel / Shadi
+11	emircom	michele Halabi	Emircom	emircom
+12	Mr.	Abdalla AlHabsi	Emirati Talent Competitiveness Council (ETCC)	Fadi Adra
+12	Mr.	Ebrahim AlZaabi	Executive office of Anti-Money Laundering and Counter Terrorism Financing	Fadi Adra
+12	Mr.	Zaghum Javed	GCAA	Fadi Adra
+12	Ms.	Maha Matraji	Hill International 	Fadi Adra
+12	Ms.	Hana AlHashmi	ICP - Federal Authority For Identity, Citizenship, Customs & Port Security	Fadi Adra
+12	Mr.	Kenneth Okai	LOUVRE 	Fadi Adra
+12	Mr.	Bakhit AlJaren	Ministry of Community Empowerment MOCD	Fadi Adra
+12	Mr.	Mahmoud ElGibaly	Ministry of Community Empowerment MOCD	Fadi Adra
+12	Mr.	Balraj Srinivasan	MODON	Fadi Adra
+12		Karthikeyan Srinivasan	Yokogawa	Fadi Adra
+13	Mr.	M Vaidya	AD Department of Municipalities and Transport (DMT)	Adnan Team
+13	Mr.	Hashim Saeed	Damac	Asif Gul
+13	Mr.	Mahantesh Tondihal	Damac	Asif Gul
+13	Mr.	Shyjesh AP	Damac	Asif Gul
+13	Mr.	Ahmed Ali Al Bazi AlNuaimi	GCAA	Ahmed Elganiny
+13	Partner	Rodolphe Abourjeili	IBM	Adnan Team
+13	Mr.	Francis Arul	Ministry of Energy & Infrastructure	Asif Gul
+13	Partner	Amel Chadi	Schneider Electric	Partner
+13	Mr.	Faisal Abdulsamad	SEHA	Abdulhadi Samara
+13	Mr.	Benil Thambi	SKMCA	Abdulhadi Samara
+14	Mr.	Adeel Jamil Chaudhry 	Abu Dhabi Housing Authority (ADHA)	Salim Awwad
+14	Ms.	Brigette Kangara	Atlantis	Saif Khan
+14	Mr.	Rashid Mohamed	Atlantis	Saif Khan
+14	Mr.	Zalikha AlBastaki	Atlantis	Saif Khan
+14	Mr.	Saeed Chishti	Dubai Entertainment	Saif Khan
+14	Mr.	Anas E A	Panasonic ME	Saif Khan
+14	Mr.	Suresh Varghese	Panasonic ME	Saif Khan
+14	Partner	Sebastian Pavie	Thales	Partner
+14				
+14				
+15	Mr.	Nasser Qassem	Department of Community Development - Abu Dhabi (دائرة تنمية المجتمع)	Fadi Adra
+15	Mr.	Dipakkumar Fataniya	Department of Culture and Tourism (DCT)	Fadi Adra
+15	Mr.	John Hawkins	Department of Culture and Tourism (DCT)	Fadi Adra
+15	Mr.	Shadi AlShinteer	Department of Culture and Tourism (DCT)	Fadi Adra
+15	Mr.	Jacob Kaleekal Mathew	Department of Government Enablement (DGE)	Fadi Adra
+15	Ms.	Sercan Aktas	Department of Government Enablement (DGE)	Fadi Adra
+15	Mr.	Vijayakumar Sathyamoorthy	Department of Government Enablement (DGE)	Fadi Adra
+15	Mr.	Zahoor Ali	Department of Government Enablement (DGE)	Fadi Adra
+15	Mr.	Bashar  Tello	DEWAN DHAFRA	Fadi Adra
+15	Mr.	Abdul Fathah Naleem	Emirates Palace	Fadi Adra
+16	Mr.	Ali Nimer	Core42	Boney Varghese
+16	Mr.	Jahangeer Peer Mohamed	DAS Holding	Boney Varghese
+16	Mr.	Pramod Prabhakaran	DAS Holding	Boney Varghese
+16	Mr.	Suby Pathrose	DAS Holding	Boney Varghese
+16	Mr.	Parag Varshney	DUSIT THANI	Boney Varghese
+16	Mr.	Salsabeel Hamza	Dusit Thani	Boney Varghese
+16	Mr.	Ibrahim Maher Thabet	Ministry of Economy	Boney Varghese
+16	Mr.	Daniel Griffiths	Space42	Boney Varghese
+16				
+16				
+17	Mr.	Osama Melhem	ABU DHABI CUSTOMS	Tamouh Mokayed
+17	Mr.	Humaid Salem AlKaabi	Abu Dhabi Monitoring and Control Centre (ADMCC)	Suzan Matar
+17	Mr.	John Matus	Abu Dhabi Monitoring and Control Centre (ADMCC)	Suzan Matar
+17	Ms.	Heba Mohamad	FAB	Yusaf Ali
+17	Mr.	John Murphy	MBZUAI	Tamouh Mokayed
+17	Mr.	Saif Barqawi	MBZUAI	Tamouh Mokayed
+17	Mr.	Mohammed Abdullah Al-Shehhi	MOI	Noor Harfoush
+17	Lt. Col.	Saif Kamies Salem AlMazroui	MOI	Noor Harfoush
+17	Ms.	Nisreen Abouzaki	private - spouse maz	Mohd Abouzaki
+17	emircom	Suzan Matar		emircom
+18	Mr.	Waqas Butt	Alpha Dhabi	Rushab Shah
+18	emircom	Lerrick Dlima	Emircom	
+18	Ms.	Harsha Vardhan Reddy	Flydubai	DXB
+18	H.E Dr. 	Ahmed AlMurshidi	Fujairah GISC	Farhan Dawood
+18	Mr.	Shabnam P	Interstar Advisory Services	David Thomas
+18	Mr.	Mansoor Ali Khan	Mawarid Holding Investment	Rushab Shah
+18	Mr.	Gautham Chandrasekaran	MBCom	Lerrick
+18	Mr.	Raziel Pena	Mediclinic	David Thomas
+18				
+18				
+19	Mr.	Zayed Ahmad Dabbo	Abu Dhabi Early Childhood Authority - ECA 	Noor Harfoush
+19	Mr.	Khaled Elsayed	AD Department of Municipalities and Transport (DMT)	Noor Harfoush
+19	Ms.	Sara AlNajjar	AD Ports	Noor Harfoush
+19	Mr.	Huge Kampe	ADCB	Noor Harfoush
+19	Ms.	Mona Adel Salem	Environment Agency Abu Dhabi (EAD)	Noor Harfoush
+19	Mr.	Yasser Ramadan Othman	Environment Agency Abu Dhabi (EAD)	Noor Harfoush
+19	Mr.	Humaid Hasan Ali Banimalak	ICP - Federal Authority For Identity, Citizenship, Customs & Port Security	Noor Harfoush
+19	Dr.	Ibrahim Yahya Ahmed AlModhwahi	SAMAYA Hospital	Noor Harfoush
+19	Mr.	Hussein Abdulla	Sharjah Municipality	Noor Harfoush
+19				
+20	Mr.	Ali AlJumaily	Al Naboodah	Meldroy Viegas
+20	Mr.	Waleed Ibrahim	DU	Gasem Khazali
+20	Mr.	Poulose Joseph	EDC	Mohideen Anakkaran
+20	Mr.	Arun Gopidas	EGA	Mohideen Anakkaran
+20	Mr.	Ahmed AlSharawi	Federal Tax Authority (FTA)	Gasem Khazali
+20	Mr.	Hassan Wehbi	NextCare Health	Meldroy Viegas
+20	Mr.	Ashraf Adnan AlSayyed	RTA	Mohideen Anakkaran
+20				
+20				
+20				
+21	Mr.	Majdi Barhoush	Emirates Stallions Group - ESG	Fawzi Raslan
+21	Mr.	Moubarak AlJaberi	MBZUH	Fawzi Raslan
+21	Mr.	Mohamed Matar	Miral 	Fawzi Raslan
+21	Mr.	Tom Job 	SAIPEM 	Salim Awwad
+21	Mr.	Mohanad AlNajar	Skynews IMI	Fawzi Raslan
+21	Mr.	Randy Hani Zorba (AlZurba)	XRG Technologies	Salim Awwad
+21				
+21				
+21				
+21				
+22				
+22				
+22				
+22				
+22				
+22				
+22				
+22				
+22				
+22				
+23	Mr.	Ahmed AbouEissa	AD Economy	AUH
+23	Mr.	Ajaz Wani	Al Dar	Shuhaib Wani
+23	Mr.	Abdulaziz Aljassasi	Department of Community Development - Abu Dhabi (دائرة تنمية المجتمع)	AUH
+23	Mr.	Ibrahim Hamad Mahmoud	Department of Community Development - Abu Dhabi (دائرة تنمية المجتمع)	Roudi layyoun
+23	Mr.	Abha Tiwari	Department of Government Enablement	Shuhaib Wani
+23	Mr.	Shameen Abdul Jabbar	e&	Bilal Mustafa
+23	Mr.	Nikhil Chaturvedi	Rak Ceramics	Shuhaib Wani
+23				
+23				
+23				
+24	Mr.	Bakri Tarmanini	Al Masood Energy	Fadi Adra
+24	Mr.	Mohammed AlJabri	AWQAF	Fadi Adra
+24	Mr.	Murad Hajawi	Emirates Driving	Nasir Iftikhar
+24	Mr.	Tarique Mohammad	M42	Nasir Iftikhar
+24	Mr.	Sherif Mahmoud Fathalla	Public Prosecution	Nasir Iftikhar
+24	Mr.	Sameer S AlZamil	Rafed	Fadi Adra
+24	Mr.	Andrew Ochse	Taqa	Nasir Iftikhar
+24	Mr.	Fargia Lamrabet	Unifrutti Group	Fadi Adra
+24				
+24				
+25	Mr.	Muhammad Asim	ADIB	Yusaf Ali
+25	Mr.	Ali AlOmari	Dubai Media Incorporated (DMI) 	Ayman Magdy Tabl
+25	Ms.	Aisha Alketbi	EHCD - The Emirates Drug Establishment - EDE  	
+25	Mr.	Binesh Kallan	EHCD (The Emirates Drug Establishment (EDE))	AUH
+25	Mr.	Tariq Herzallah	Enas el Nasser	Ayman Magdy Tabl
+25	Mr.	Hamad AlKaabi	Fluxtech	Ayman Magdy Tabl
+25	Mr.	Ahmad Ghaleb	Ministry of Education	Ayman Magdy Tabl
+25	Mr.	Mohamed Chanan	Ministry of Education	Ayman Magdy Tabl
+25	Mr.	Yousef AlZarouni	MOHRE - Min of Human Resources and Emaritization	Ayman Magdy Tabl
+25				`;
+
+const tableLocations = {
+    '1': 'Front Middle, near stage',
+    '2': 'Front Middle, near stage',
+    '3': 'Front  Middle, near stage',
+    '4': 'Front Left, near stage',
+    '5': 'Front Left, near stage',
+    '6': '2nd row from front, middle',
+    '7': '2nd row from front, middle',
+    '8': '2nd row from front, middle',
+    '9': 'Front Right, near stage',
+    '10': 'Front Right, near stage',
+    '11': '3rd row from front, Left',
+    '12': '3rd row from front, Left',
+    '13': '3rd row from front, middle',
+    '14': '3rd row from front, middle',
+    '15': '3rd row from front, middle',
+    '16': '3rd row from front, Right',
+    '17': '3rd row from front, Right',
+    '18': 'Back-Left',
+    '19': 'Back-Left',
+    '20': 'Back-Left',
+    '21': 'Back-Left',
+    '22': 'Back-Right',
+    '23': 'Back-Right',
+    '24': 'Back-Right',
+    '25': 'Back-Right'
+};
+
+const guests = guestData.split('\n').slice(1).map(line => {
+    const parts = line.split('\t');
+    return {
+        table: parts[0],
+        title: parts[1],
+        name: parts[2],
+        company: parts[3],
+        am: parts[4]
+    };
+}).filter(g => g.name && g.name.trim());
+
+const searchInput = document.getElementById('search');
+const resultsDiv = document.getElementById('results');
+
+searchInput.addEventListener('input', function() {
+    const query = this.value.toLowerCase().trim();
+    
+    if (!query) {
+        resultsDiv.innerHTML = '<div class="text-center text-sm opacity-60 py-8">Start typing to search...</div>';
+        return;
+    }
+    
+    const matches = guests.filter(g => 
+        (g.name && g.name.toLowerCase().includes(query)) ||
+        (g.company && g.company.toLowerCase().includes(query)) ||
+        (g.am && g.am.toLowerCase().includes(query))
+    );
+    
+    if (matches.length === 0) {
+        resultsDiv.innerHTML = '<div class="text-center text-sm opacity-60 py-4">No results found</div>';
+        return;
+    }
+    
+    resultsDiv.innerHTML = matches.slice(0, 10).map((guest, idx) => `
+        <div class="card bg-base-200 ${idx === 0 ? 'border-2 border-primary' : ''}">
+            <div class="card-body p-3">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm">${guest.name || 'N/A'}</h3>
+                        ${guest.company ? `<p class="text-xs opacity-70 mt-1">${guest.company}</p>` : ''}
+                        ${guest.am ? `<p class="text-xs opacity-60 mt-1">AM: ${guest.am}</p>` : ''}
+                    </div>
+                    <div class="badge badge-primary">${guest.table || '?'}</div>
+                </div>
+                ${idx === 0 && guest.table && tableLocations[guest.table] ? `
+                    <div class="divider my-1"></div>
+                    <div class="bg-base-300 rounded p-2">
+                        <div class="text-xs font-semibold opacity-70 mb-1">📍 Table Location</div>
+                        <p class="text-xs">${tableLocations[guest.table]}</p>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `).join('');
+});
+
+resultsDiv.innerHTML = '<div class="text-center text-sm opacity-60 py-8">Start typing to search...</div>';
+    </script>
+</body>
+</html>
